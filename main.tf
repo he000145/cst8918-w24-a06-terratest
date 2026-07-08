@@ -9,7 +9,8 @@ resource "azurerm_public_ip" "webserver" {
   name                = "${var.labelPrefix}A05PublicIP"
   location            = azurerm_resource_group.rg.location
   resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Dynamic"
+  allocation_method   = "Static"
+  sku                 = "Standard"
 }
 
 # Define the virtual network
@@ -99,7 +100,7 @@ resource "azurerm_linux_virtual_machine" "webserver" {
   resource_group_name   = azurerm_resource_group.rg.name
   location              = azurerm_resource_group.rg.location
   network_interface_ids = [azurerm_network_interface.webserver.id]
-  size                  = "Standard_B1s"
+  size                  = "Standard_B2ats_v2"
 
   os_disk {
     name                 = "${var.labelPrefix}A05OSDisk"
@@ -120,7 +121,7 @@ resource "azurerm_linux_virtual_machine" "webserver" {
 
   admin_ssh_key {
     username   = var.admin_username
-    public_key = file("~/.ssh/id_rsa.pub")
+    public_key = file(pathexpand("~/.ssh/id_rsa.pub"))
   }
 
   custom_data = data.cloudinit_config.init.rendered
